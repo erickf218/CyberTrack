@@ -11,7 +11,7 @@ import base64
 from pathlib import Path
 from typing import List, Optional
 
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Request
 from pydantic import BaseModel
 from PIL import Image
 
@@ -77,14 +77,37 @@ Ejemplo:
 
 
 @router.post("", response_model=DetectionResponse)
-async def detect_objects(file: UploadFile = File(...)):
+async def detect_objects(request: Request, file: Optional[UploadFile] = File(None)):
+    """Acepta un archivo multipart. Se intenta buscar el archivo bajo la clave 'file' pero
+    si por alguna razón el cliente lo envió con otra clave (o el multipart fue transformado),
+    intentamos encontrar el primer UploadFile dentro del form para ser tolerantes.
+    """
     if not GEMINI_API_KEY:
         raise HTTPException(status_code=503, detail="GEMINI_API_KEY no configurada.")
-    
+
+    # Si FastAPI no pudo parsear el UploadFile por su nombre, buscamos explícitamente
+    # dentro del form por si el cliente o algún proxy cambió el nombre del campo.
+    if file is None:
+        try:
+            form = await request.form()
+            for value in form.values():
+                if isinstance(value, UploadFile):
+                    file = value
+                    break
+        except Exception:
+            file = None
+
+    if file is None:
+        # Mantener el mismo código de error (422) pero con mensaje más claro
+        raise HTTPException(
+            status_code=422,
+            detail="Field required: multipart form must include a file upload (expected key 'file').",
+        )
+
     # Safari a veces manda content_type raro o None
     # Intentamos detectar por la extensión del archivo
     actual_type = file.content_type or ""
-    
+
     # Si Safari no mandó content_type, inferimos por extensión
     if not actual_type or actual_type == "application/octet-stream":
         ext = Path(file.filename or "").suffix.lower()
@@ -94,15 +117,14 @@ async def detect_objects(file: UploadFile = File(...)):
             ".heic": "image/heic", ".heif": "image/heif",
         }
         actual_type = type_map.get(ext, "")
-    
+
     if actual_type not in ALLOWED_TYPES:
         raise HTTPException(
             status_code=415,
             detail=f"Formato no soportado: '{actual_type}' (filename: {file.filename}). Usa JPG, PNG, WEBP o HEIC.",
         )
-    
-    # ... resto del código igual, pero usa actual_type en vez de file.content_type
 
+    # Guardar en temp file para manipular con PIL si hace falta
     suffix = Path(file.filename or "").suffix or ".jpg"
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
         content = await file.read()
@@ -113,8 +135,8 @@ async def detect_objects(file: UploadFile = File(...)):
     try:
         detect_path = tmp_path
 
-        # Convertir HEIC a JPG
-        if file.content_type in HEIC_TYPES:
+        # Convertir HEIC a JPG — usar actual_type para decidir
+        if actual_type in HEIC_TYPES:
             try:
                 converted_path = tmp_path + "_converted.jpg"
                 Image.open(tmp_path).convert("RGB").save(converted_path, "JPEG", quality=90)
@@ -125,7 +147,7 @@ async def detect_objects(file: UploadFile = File(...)):
                     detail=f"No se pudo leer la foto HEIC: {error}. Prueba exportarla como JPG.",
                 )
 
-        # Leer imagen como bytes y convertir a base64
+        # Leer imagen como bytes
         with open(detect_path, "rb") as img_file:
             image_bytes = img_file.read()
 
@@ -138,16 +160,13 @@ async def detect_objects(file: UploadFile = File(...)):
             # Crear cliente (nueva forma, no más genai.configure)
             client = genai.Client(api_key=GEMINI_API_KEY)
 
-            # Codificar imagen a base64 para enviar inline
-            image_b64 = base64.b64encode(image_bytes).decode('utf-8')
-
-            # Llamar a Gemini con el nuevo formato
+            # Llamar a Gemini con el nuevo formato, enviando los bytes
             response = client.models.generate_content(
                 model='gemini-3.5-flash-lite',  # ← Modelo actual gratuito
                 contents=[
                     types.Part.from_text(text=DETECTION_PROMPT),
                     types.Part.from_bytes(
-                        data=image_bytes,  # ← bytes crudos, no base64
+                        data=image_bytes,
                         mime_type=mime_type
                     ),
                 ]
