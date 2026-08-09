@@ -6,4 +6,6 @@ pillow-heif
 google-genai
 python-dotenv
 sqlalchemy
+psycopg2-binary
 pydantic
+groq
