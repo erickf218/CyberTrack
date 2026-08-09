@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://erickf218.github.io/CyberTrack/sitemap.xml
