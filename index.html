@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#05070b">
+<title>CyberTrack — CyberLife</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root{
+  --bg:#05070b;
+  --surface:#090d13;
+  --surface-2:#0d131b;
+  --surface-3:#111923;
+  --line:#202b38;
+  --line-soft:rgba(255,255,255,.055);
+  --text:#f5f8fb;
+  --muted:#8793a3;
+  --muted-2:#5f6b7b;
+  --accent:#67f6c1;
+  --accent-2:#46b8ff;
+  --warning:#ffc857;
+  --danger:#ff6b7a;
+  --radius:16px;
+  --shadow:0 25px 80px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 72% -10%,rgba(70,184,255,.09),transparent 28rem),
+    radial-gradient(circle at 12% 30%,rgba(103,246,193,.055),transparent 25rem),
+    var(--bg);
+  color:var(--text);
+  font-family:Inter,system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+button,input{font:inherit}
+button{cursor:pointer;background:none;border:0;color:inherit;appearance:none}
+svg{display:block}
+
+/* ---------- TOP BAR ---------- */
+.topbar{
+  height:76px;
+  position:fixed;
+  inset:0 0 auto 0;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 30px;
+  border-bottom:1px solid var(--line-soft);
+  background:rgba(5,7,11,.72);
+  backdrop-filter:blur(22px);
+}
+.brand{display:flex;align-items:baseline;gap:10px}
+.brand__eyebrow{
+  color:var(--accent);
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+.brand__name{
+  font-size:21px;
+  font-weight:800;
+  letter-spacing:-.8px;
+}
+.version-badge{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  color:#aeb8c6;
+  background:rgba(255,255,255,.025);
+  font-size:11px;
+}
+.version-badge__dot,.dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 14px rgba(103,246,193,.85);
+}
+
+/* ---------- LAYOUT ---------- */
+.shell{
+  display:flex;
+  max-width:1540px;
+  margin:0 auto;
+  padding-top:76px;
+}
+.rail{
+  width:92px;
+  min-width:92px;
+  position:fixed;
+  top:76px;
+  bottom:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  padding:24px 12px;
+  border-right:1px solid var(--line-soft);
+  background:rgba(5,7,11,.5);
+  backdrop-filter:blur(18px);
+}
+.rail__item{
+  position:relative;
+  width:68px;
+  min-height:64px;
+  border:1px solid transparent;
+  border-radius:13px;
+  color:var(--muted);
+  background:transparent;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  font-size:10px;
+  transition:.25s ease;
+  text-decoration: none;
+}
+.rail__item:hover{
+  color:#eaf1f7;
+  background:rgba(255,255,255,.035);
+}
+.rail__item.is-active{
+  color:var(--accent);
+  background:linear-gradient(145deg,rgba(103,246,193,.10),rgba(103,246,193,.025));
+  border-color:rgba(103,246,193,.18);
+  box-shadow:inset 0 0 30px rgba(103,246,193,.025);
+}
+.rail__item.is-active:before{
+  content:"";
+  position:absolute;
+  left:-13px;
+  width:2px;height:28px;
+  border-radius:4px;
+  background:var(--accent);
+  box-shadow:0 0 14px var(--accent);
+}
+.rail__icon{width:20px;height:20px}
+.rail__soon{
+  position:absolute;
+  top:5px;right:5px;
+  font-size:7px;
+  color:var(--muted-2);
+  text-transform:uppercase;
+}
+.main{
+  width:calc(100% - 92px);
+  margin-left:92px;
+  padding:54px clamp(28px,5vw,82px) 100px;
+}
+
+/* ---------- SHARED ---------- */
+section{scroll-margin-top:100px}
+h1,h2,h3{letter-spacing:-1.8px}
+h1{font-size:clamp(42px,5.3vw,76px);line-height:.96}
+h2{font-size:clamp(28px,3vw,43px);line-height:1.02}
+p{line-height:1.7}
+.btn-primary,.btn-ghost{
+  min-height:42px;
+  padding:0 17px;
+  border-radius:10px;
+  border:1px solid transparent;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  transition:.25s ease;
+}
+.btn-primary{
+  color:#06100c;
+  background:var(--accent);
+  font-weight:750;
+  box-shadow:0 8px 30px rgba(103,246,193,.12);
+}
+.btn-primary:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 34px rgba(103,246,193,.2);
+  filter:brightness(1.04);
+}
+.btn-ghost{
+  color:#c5cfdb;
+  border-color:var(--line);
+  background:rgba(255,255,255,.025);
+}
+.btn-ghost:hover{border-color:#394655;color:white;background:rgba(255,255,255,.045)}
+.reveal-zoom{animation:rise .6s ease both}
+@keyframes rise{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:none}
+}
+
+/* ---------- HERO ---------- */
+.hero{
+  min-height:620px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(420px,520px);
+  align-items:center;
+  gap:clamp(40px,7vw,100px);
+  position:relative;
+  padding:55px 0 80px;
+}
+.hero:before{
+  content:"";
+  position:absolute;
+  width:500px;height:500px;
+  right:5%;top:0;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(103,246,193,.075),transparent 68%);
+  pointer-events:none;
+}
+.hero__text{position:relative;z-index:2}
+.hero__text:before{
+  content:"AI-POWERED INVENTORY";
+  display:inline-flex;
+  margin-bottom:22px;
+  color:var(--accent);
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:2.5px;
+}
+.hero__text h1{
+  max-width:760px;
+  background:linear-gradient(100deg,#fff 20%,#dfe9ee 52%,var(--accent) 100%);
+  -webkit-background-clip:text;
+  color:transparent;
+}
+.hero__text p{
+  max-width:650px;
+  margin-top:26px;
+  color:var(--muted);
+  font-size:15px;
+}
+.scan-controls{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-top:31px;
+}
+.scan-controls__hint{font-size:11px;color:var(--muted-2)}
+
+.scan-frame{
+  width:min(100%,520px);
+  aspect-ratio:1/1;
+  justify-self:end;
+  position:relative;
+  border:1px solid #293543;
+  border-radius:22px;
+  background:
+    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px),
+    radial-gradient(circle at center,rgba(103,246,193,.055),transparent 60%),
+    #080c12;
+  background-size:44px 44px,44px 44px,auto,auto;
+  box-shadow:var(--shadow),inset 0 0 80px rgba(103,246,193,.025);
+  overflow:hidden;
+}
+.scan-frame:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(120deg,transparent 30%,rgba(103,246,193,.035),transparent 70%);
+  animation:sweep 5s linear infinite;
+}
+@keyframes sweep{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+.scan-frame__corner{
+  position:absolute;width:28px;height:28px;z-index:4;
+  border-color:var(--accent);border-style:solid;
+  filter:drop-shadow(0 0 6px rgba(103,246,193,.4));
+}
+.scan-frame__corner--tl{top:22px;left:22px;border-width:2px 0 0 2px}
+.scan-frame__corner--tr{top:22px;right:22px;border-width:2px 2px 0 0}
+.scan-frame__corner--bl{bottom:22px;left:22px;border-width:0 0 2px 2px}
+.scan-frame__corner--br{bottom:22px;right:22px;border-width:0 2px 2px 0}
+.scan-frame__image{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:2;
+}
+.scan-frame__line{
+  position:absolute;z-index:3;left:8%;right:8%;height:1px;top:22%;
+  background:var(--accent);
+  box-shadow:0 0 18px rgba(103,246,193,.8);
+  animation:scanner 3.2s ease-in-out infinite;
+}
+@keyframes scanner{0%,100%{top:18%}50%{top:82%}}
+.scan-frame__placeholder{
+  position:absolute;inset:0;display:grid;place-items:center;
+  color:#4f5c6c;font-size:12px;z-index:1;
+}
+.scan-frame__badge{
+  position:absolute;left:28px;bottom:26px;z-index:5;
+  display:flex;align-items:center;gap:8px;
+  padding:8px 11px;border:1px solid var(--line);
+  border-radius:8px;background:rgba(5,7,11,.75);
+  backdrop-filter:blur(12px);
+  color:#a9b4c2;font-size:10px;
+}
+
+/* ---------- RESULTS ---------- */
+.detection-results,.stats,.inventory,.assistant{
+  margin-top:28px;
+}
+.detection-results{
+  padding:26px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.012));
+}
+.detection-results h2{font-size:23px}
+.detection-results__note{
+  margin:7px 0 20px;color:var(--muted);font-size:12px;
+}
+.detection-list{display:grid;gap:10px}
+
+/* ---------- STATS ---------- */
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+}
+.stat-card{
+  min-height:112px;
+  padding:22px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:rgba(255,255,255,.018);
+  transition:.25s;
+}
+.stat-card:hover{transform:translateY(-3px);border-color:#2d3946;background:rgba(255,255,255,.028)}
+.stat-card__label{display:block;color:var(--muted);font-size:11px;margin-bottom:14px}
+.stat-card__value{display:block;font-size:27px;font-weight:750;letter-spacing:-1px}
+.stat-card--warn .stat-card__value{color:var(--warning)}
+.stat-card__value--small{font-size:14px;color:var(--muted)}
+
+/* ---------- INVENTORY ---------- */
+.inventory{
+  padding:30px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:linear-gradient(160deg,#0b1017,#080c11);
+}
+.inventory__head{
+  display:grid;
+  grid-template-columns:1fr minmax(200px,300px) auto;
+  gap:12px;
+  align-items:center;
+  margin-bottom:24px;
+}
+.inventory__head h2{font-size:25px}
+.search{
+  height:42px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:0 12px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#080c12;
+  color:var(--muted-2);
+}
+.search input{
+  width:100%;border:0;outline:0;background:transparent;color:white;font-size:12px;
+}
+.inventory-status{color:var(--muted-2);font-size:11px;margin-bottom:15px}
+
+/* ---------- ASSISTANT ---------- */
+.assistant{
+  padding:30px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:
+    radial-gradient(circle at 90% 0,rgba(70,184,255,.07),transparent 30%),
+    #090e15;
+}
+.assistant__head h2{font-size:25px}
+.assistant__subtitle{color:var(--muted);font-size:12px;margin-top:7px}
+.assistant__chat{
+  min-height:180px;
+  max-height:420px;
+  overflow:auto;
+  margin-top:24px;
+  padding:18px;
+  border:1px solid var(--line-soft);
+  border-radius:12px;
+  background:#070b10;
+}
+.assistant__empty{
+  color:var(--muted-2);
+  font-size:12px;
+  text-align:center;
+  padding:50px 20px;
+}
+.assistant__form{
+  display:flex;gap:10px;margin-top:12px;
+}
+.assistant__form input{
+  flex:1;height:44px;padding:0 14px;
+  border:1px solid var(--line);border-radius:10px;
+  outline:0;background:#070b10;color:white;font-size:12px;
+}
+.assistant__form input:focus,.search:focus-within{
+  border-color:rgba(103,246,193,.45);
+  box-shadow:0 0 0 3px rgba(103,246,193,.05);
+}
+
+/* ---------- MODAL ---------- */
+.modal-backdrop{
+  position:fixed;inset:0;z-index:500;
+  display:grid;place-items:center;
+  padding:20px;
+  background:rgba(0,0,0,.7);
+  backdrop-filter:blur(12px);
+}
+
+.modal-backdrop[hidden]{
+  display:none !important;
+}
+
+.modal{
+  width:min(100%,510px);
+  padding:25px;
+  border:1px solid #2a3542;
+  border-radius:18px;
+  background:#0b1017;
+  box-shadow:0 35px 100px rgba(0,0,0,.6);
+}
+.modal__head{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:24px;
+}
+.modal__head h3{font-size:21px}
+.modal__close{
+  width:34px;height:34px;border-radius:9px;
+  border:1px solid var(--line);background:transparent;color:var(--muted);
+}
+.modal__close:hover{color:white;background:rgba(255,255,255,.04)}
+.field{display:block;margin-bottom:15px}
+.field>span{display:block;color:#aeb8c5;font-size:11px;margin-bottom:7px}
+.field input{
+  width:100%;height:42px;padding:0 12px;
+  border:1px solid var(--line);border-radius:9px;
+  outline:0;background:#070b10;color:white;font-size:12px;
+}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-error{color:var(--danger);font-size:11px;margin:12px 0}
+.modal__actions{display:flex;justify-content:flex-end;gap:9px;margin-top:22px}
+
+/* ---------- CATEGORÍAS E INVENTARIO (generado por app.js) ---------- */
+.category{margin-bottom:22px}
+.category h3{
+  font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--muted-2);margin-bottom:10px;padding-left:2px;
+}
+.parts-table{
+  width:100%;border-collapse:collapse;
+  border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  background:rgba(255,255,255,.015);
+}
+.parts-table td{
+  padding:14px 16px;border-bottom:1px solid var(--line-soft);font-size:13px;
+}
+.parts-table tr:last-child td{border-bottom:0}
+.part-name{color:var(--text)}
+.part-code{color:var(--muted-2);font-size:11px}
+.part-count{font-weight:700;text-align:right;width:60px}
+.is-low .part-count{color:var(--warning)}
+.low-flag{
+  display:inline-block;margin-left:9px;padding:2px 7px;
+  border-radius:999px;background:rgba(255,200,87,.12);
+  color:var(--warning);font-size:9px;letter-spacing:.5px;text-transform:uppercase;
+}
+.part-actions{width:36px;text-align:right}
+.qty-edit{
+  color:var(--text);font-weight:700;border-radius:6px;padding:3px 7px;
+}
+.qty-edit:hover{background:rgba(103,246,193,.08);color:var(--accent)}
+.qty-input{
+  width:52px;text-align:right;padding:3px 7px;
+  border:1px solid var(--accent);border-radius:6px;
+  background:#070b10;color:var(--text);font-weight:700;font-size:13px;
+}
+.btn-icon{
+  width:30px;height:30px;border-radius:8px;display:inline-flex;
+  align-items:center;justify-content:center;color:var(--muted-2);
+}
+.btn-icon:hover{background:rgba(255,107,122,.1);color:var(--danger)}
+
+/* ---------- DETECCIÓN (generado por app.js) ---------- */
+.detection-item{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 16px;border:1px solid var(--line);border-radius:11px;
+  background:rgba(255,255,255,.018);
+}
+.detection-item__info{display:flex;flex-direction:column;gap:3px}
+.detection-item__label{font-size:13px;text-transform:capitalize;color:var(--text)}
+.detection-item__meta{font-size:11px;color:var(--accent-2)}
+.detection-item__status{font-size:11px;color:var(--muted);text-align:right;white-space:nowrap}
+.detection-item__status.is-error{color:var(--danger)}
+.detection-item__undo{
+  margin-left:6px;color:var(--accent-2);text-decoration:underline;
+  text-underline-offset:2px;font-size:11px;
+}
+.detection-item__undo:hover{color:var(--danger)}
+.detection-tag{
+  position:absolute;z-index:6;display:flex;align-items:center;gap:7px;
+  padding:5px 9px;border:1px solid var(--accent);border-radius:8px;
+  background:rgba(5,7,11,.85);font-size:11px;color:var(--text);
+}
+.detection-tag b{color:var(--accent);font-weight:700}
+.scan-controls__hint.is-error{color:var(--danger)}
+
+/* ---------- CHAT DEL ASISTENTE (generado por app.js) ---------- */
+.assistant__msg{
+  max-width:80%;padding:11px 15px;border-radius:12px;font-size:13px;
+  line-height:1.55;white-space:pre-wrap;
+}
+.assistant__msg--user{
+  align-self:flex-end;margin-left:auto;
+  background:rgba(103,246,193,.12);border:1px solid rgba(103,246,193,.25);
+  color:var(--text);
+}
+.assistant__msg--assistant{
+  background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--text);
+}
+.assistant__msg--error{
+  background:rgba(255,107,122,.08);border:1px solid rgba(255,107,122,.3);color:var(--danger);
+}
+.assistant__msg--pending{color:var(--muted-2);font-size:11px}
+.assistant__chat{display:flex;flex-direction:column;gap:12px}
+
+/* ---------- ESTADOS GENÉRICOS ---------- */
+.inventory-status.is-error{color:var(--danger)}
+.inventory-status.is-hidden{display:none}
+.detection-results[hidden]{display:none}
+
+/* ---------- MOBILE ---------- */
+@media(max-width:1050px){
+  .hero{grid-template-columns:1fr}
+  .scan-frame{justify-self:start;width:min(100%,600px)}
+  .stats{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:760px){
+  .topbar{padding:0 17px}
+  .version-badge{display:none}
+  .shell{display:block}
+  .rail{
+    top:auto;left:0;right:0;bottom:0;
+    width:100%;height:68px;min-width:0;
+    flex-direction:row;justify-content:space-around;
+    padding:6px 8px;z-index:120;
+    border-right:0;border-top:1px solid var(--line-soft);
+  }
+  .rail__item{width:70px;min-height:54px}
+  .rail__item.is-active:before{display:none}
+  .main{width:100%;margin-left:0;padding:34px 17px 100px}
+  .hero{padding-top:28px;min-height:auto}
+  .hero__text h1{font-size:46px}
+  .hero__text p{font-size:14px}
+  .scan-controls{flex-wrap:wrap}
+  .stats{grid-template-columns:1fr 1fr}
+  .inventory{padding:20px}
+  .inventory__head{grid-template-columns:1fr}
+  .assistant{padding:20px}
+}
+@media(max-width:480px){
+  .brand__eyebrow{display:none}
+  .brand__name{font-size:19px}
+  .hero__text h1{font-size:40px}
+  .stats{grid-template-columns:1fr}
+  .field-row{grid-template-columns:1fr}
+  .assistant__form{flex-direction:column}
+}
+</style>
+</head>
+
+<body>
+
+<!-- ======================= TOP BAR ======================= -->
+<header class="topbar">
+  <div class="brand">
+    <span class="brand__eyebrow">CyberLife</span>
+    <span class="brand__name">CyberTrack</span>
+  </div>
+  <div class="version-badge" title="Fase actual del roadmap">
+    <span class="version-badge__dot"></span>
+    v1.0-beta · Asistente
+  </div>
+</header>
+
+<div class="shell">
+
+<!-- ======================= NAV RAIL ======================= -->
+  <nav class="rail" aria-label="Navegación principal">
+
+    <!-- Enlace a Inicio -->
+    <a href="inicio.html" class="rail__item is-active">
+      <svg class="rail__icon" viewBox="0 0 24 24" fill="none"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Inicio</span>
+    </a>
+
+    <!-- Inventario -->
+    <button class="rail__item" data-tab="inventario" data-scroll-to="inventorySection">
+      <svg class="rail__icon" viewBox="0 0 24 24" fill="none"><path d="M3 7l9-4 9 4-9 4-9-4Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M3 7v10l9 4 9-4V7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 11v10" stroke="currentColor" stroke-width="1.6"/></svg>
+      <span>Inventario</span>
+    </button>
+
+    <!-- Detección -->
+    <button class="rail__item" data-tab="deteccion" data-scroll-to="detectionSection">
+      <svg class="rail__icon" viewBox="0 0 24 24" fill="none"><path d="M4 8V5a1 1 0 0 1 1-1h3M20 8V5a1 1 0 0 0-1-1h-3M4 16v3a1 1 0 0 0 1 1h3M20 16v3a1 1 0 0 1-1 1h-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.6"/></svg>
+      <span>Detección</span>
+    </button>
+
+    <!-- Asistente -->
+    <button class="rail__item" data-tab="asistente" data-scroll-to="assistantSection">
+      <svg class="rail__icon" viewBox="0 0 24 24" fill="none"><path d="M12 3a5 5 0 0 0-5 5v2.2c0 .5-.16 1-.46 1.4L5 13.8c-.7.9-.06 2.2 1.06 2.2H18c1.13 0 1.76-1.3 1.06-2.2l-1.53-2.2a2.4 2.4 0 0 1-.46-1.4V8a5 5 0 0 0-5-5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9.5 19a2.7 2.7 0 0 0 5 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <span>Asistente</span>
+    </button>
+
+    <!-- Enlace a Nosotros -->
+    <a href="nosotros.html" class="rail__item">
+      <svg class="rail__icon" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <span>Nosotros</span>
+    </a>
+
+    <!-- Enlace a Blog -->
+    <a href="blog.html" class="rail__item">
+      <svg class="rail__icon" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Blog</span>
+    </a>
+
+  </nav>
+
+  <!-- ======================= MAIN ======================= -->
+  <main class="main">
+
+    <!-- HERO -->
+    <section class="hero" id="detectionSection" aria-label="Detección de piezas">
+      <div class="hero__text">
+        <h1>Apunta. Detecta. Inventaría.</h1>
+        <p>Sube una foto e identifica qué piezas de robótica hay en ella. Reconoce el tipo de pieza directamente, sin entrenamiento previo — tú confirmas y escribes la cantidad al agregarla al inventario.</p>
+
+        <div class="scan-controls">
+          <input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" hidden>
+          <button type="button" class="btn-primary" id="choosePhoto">
+            <svg viewBox="0 0 24 24" fill="none" width="16" height="16"><path d="M4 8V5a1 1 0 0 1 1-1h3M20 8V5a1 1 0 0 0-1-1h-3M4 16v3a1 1 0 0 0 1 1h3M20 16v3a1 1 0 0 1-1 1h-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.6"/></svg>
+            Subir foto
+          </button>
+          <span class="scan-controls__hint" id="detectHint"></span>
+        </div>
+      </div>
+
+      <div class="scan-frame reveal-zoom" id="scanFrame">
+        <span class="scan-frame__corner scan-frame__corner--tl"></span>
+        <span class="scan-frame__corner scan-frame__corner--tr"></span>
+        <span class="scan-frame__corner scan-frame__corner--bl"></span>
+        <span class="scan-frame__corner scan-frame__corner--br"></span>
+
+        <img id="scanImage" class="scan-frame__image" hidden alt="Foto analizada">
+        <div class="scan-frame__line" id="scanLine" aria-hidden="true"></div>
+        <p class="scan-frame__placeholder" id="scanPlaceholder">Sube una foto para analizarla</p>
+
+        <div class="scan-frame__badge" id="scanBadge">
+          <span class="dot"></span> esperando foto
+        </div>
+
+        <div id="detectionTags"></div>
+      </div>
+    </section>
+
+    <!-- DETECTION RESULTS -->
+    <section class="detection-results reveal-zoom" id="detectionResults" hidden aria-label="Resultados de la detección">
+      <h2>Objetos detectados</h2>
+      <p class="detection-results__note">CyberIA puede equivocarse o no reconocer una pieza — revisa cada resultado antes de agregarlo, y escribe tú la cantidad.</p>
+      <div id="detectionList" class="detection-list"></div>
+    </section>
+
+    <!-- STATS ROW -->
+    <section class="stats reveal-zoom" aria-label="Resumen del inventario">
+      <div class="stat-card">
+        <span class="stat-card__label">Piezas registradas</span>
+        <span class="stat-card__value" id="statTotalParts">—</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card__label">Categorías activas</span>
+        <span class="stat-card__value" id="statCategories">—</span>
+      </div>
+      <div class="stat-card stat-card--warn">
+        <span class="stat-card__label">Alertas de stock bajo</span>
+        <span class="stat-card__value" id="statLowStock">—</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card__label">Pieza más usada</span>
+        <span class="stat-card__value stat-card__value--small" title="Llega con el módulo de Historial (v0.5)">— próximamente</span>
+      </div>
+    </section>
+
+    <!-- INVENTORY -->
+    <section class="inventory reveal-zoom" id="inventorySection" aria-label="Inventario por categoría">
+      <div class="inventory__head">
+        <h2>Inventario</h2>
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" width="16" height="16"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <input type="text" placeholder="Buscar pieza, ej. Spark MAX" aria-label="Buscar pieza">
+        </div>
+        <button class="btn-primary" id="openAddPart" type="button">
+          <svg viewBox="0 0 24 24" fill="none" width="16" height="16"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Agregar pieza
+        </button>
+      </div>
+
+      <div id="inventoryStatus" class="inventory-status">Cargando inventario…</div>
+      <div id="inventoryContainer"></div>
+    </section>
+
+    <!-- ASSISTANT -->
+    <section class="assistant reveal-zoom" id="assistantSection" aria-label="Asistente técnico">
+      <div class="assistant__head">
+        <h2>Asistente</h2>
+        <p class="assistant__subtitle">Pregúntale qué necesitas para un proyecto — lee tu inventario real y te dice qué te falta.</p>
+      </div>
+
+      <div class="assistant__chat" id="assistantChat">
+        <div class="assistant__empty" id="assistantEmpty">
+          Por ejemplo: <em>"Quiero armar un brazo robótico de 2 grados de libertad, ¿qué me falta?"</em>
+        </div>
+      </div>
+
+      <form class="assistant__form" id="assistantForm">
+        <input type="text" id="assistantInput" placeholder="Escribe tu pregunta…" autocomplete="off" required>
+        <button type="submit" class="btn-primary" id="assistantSend">Enviar</button>
+      </form>
+    </section>
+
+  </main>
+</div>
+
+<!-- ======================= MODAL ======================= -->
+<div class="modal-backdrop" id="addPartBackdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="addPartTitle">
+    <div class="modal__head">
+      <h3 id="addPartTitle">Agregar pieza</h3>
+      <button type="button" class="modal__close" id="closeAddPart" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" width="16" height="16"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <form id="addPartForm">
+      <label class="field">
+        <span>Nombre</span>
+        <input type="text" name="name" required placeholder="ej. Motor Kraken X60">
+      </label>
+      <label class="field">
+        <span>Código</span>
+        <input type="text" name="code" required placeholder="ej. MTR-KX2">
+      </label>
+      <label class="field">
+        <span>Categoría</span>
+        <input type="text" name="category" required placeholder="ej. Motores" list="categoryOptions">
+        <datalist id="categoryOptions"></datalist>
+      </label>
+      <div class="field-row">
+        <label class="field">
+          <span>Cantidad</span>
+          <input type="number" name="quantity" min="0" value="1" required>
+        </label>
+        <label class="field">
+          <span>Umbral de stock bajo</span>
+          <input type="number" name="low_stock_threshold" min="0" value="2" required>
+        </label>
+      </div>
+
+      <p class="form-error" id="addPartError" hidden></p>
+
+      <div class="modal__actions">
+        <button type="button" class="btn-ghost" id="cancelAddPart">Cancelar</button>
+        <button type="submit" class="btn-primary">Guardar pieza</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
