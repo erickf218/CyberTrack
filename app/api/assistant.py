@@ -1,33 +1,20 @@
 """
 Ruta del asistente: POST /api/assistant/ask
-
-Recibe una pregunta del usuario, lee el inventario actual de la base
-de datos, y se lo pasa a ai/assistant/assistant.py (Groq) para que
-responda qué piezas sirven, cuáles faltan, y recomendaciones.
 """
-import sys
-from pathlib import Path
-
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.database.db import get_db
 from app.services import inventory_service, conversation_service
+from app.services.assistant_service import ask
 from app.models.schemas import AssistantMessageOut
-
-# ai/ vive un nivel arriba de backend/, mismo patrón que detect.py
-AI_DIR = Path(__file__).resolve().parents[3] / "ai"
-if str(AI_DIR) not in sys.path:
-    sys.path.insert(0, str(AI_DIR))
-
-from assistant.assistant import ask  # noqa: E402
 
 router = APIRouter(prefix="/api/assistant", tags=["assistant"])
 
 
 class AssistantMessage(BaseModel):
-    role: str  # "user" o "assistant"
+    role: str
     content: str
 
 
@@ -61,8 +48,6 @@ def ask_assistant(request: AssistantRequest, db: Session = Depends(get_db)):
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error del asistente: {error}")
 
-    # Se guarda DESPUÉS de que Groq respondió bien — si algo falla arriba,
-    # no queremos una pregunta huérfana en el historial sin su respuesta.
     conversation_service.save_message(db, "user", request.question)
     conversation_service.save_message(db, "assistant", answer)
 
