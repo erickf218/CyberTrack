@@ -15,7 +15,7 @@
 // tener que cambiar nada entre los dos casos.
 const API_BASE = window.location.hostname === 'localhost' 
     ? 'http://127.0.0.1:8000' 
-    : 'https://cybertrack-api.onrender.com';
+    : 'https://cybertrack-api-07ji.onrender.com';
 
 let inventoryCache = []; // última respuesta del backend, usada para filtrar sin volver a pedirla
 
