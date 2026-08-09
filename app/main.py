@@ -19,15 +19,13 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="CyberTrack API", version="1.0.0-beta")
 
 # CORS: permitir GitHub Pages y localhost
+# allow_origins=["*"] permite CUALQUIER origen (menos seguro pero funciona siempre)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:8000",
-        "https://erickf218.github.io",
-        "https://erickf218.github.io/CyberTrack",
-    ],
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_credentials=True,
 )
 
 app.include_router(inventory.router)
